@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>オンライン3人・4人オセロ</title>
+<title>オンライン2人・3人・4人オセロ</title>
 <style>
 :root{color-scheme:dark;--bg:#111827;--panel:#1f2937;--muted:#9ca3af;--blue:#3b82f6;--board:#27864a;--grid:#14552e}
 *{box-sizing:border-box}body{margin:0;padding:18px 10px 34px;background:radial-gradient(ellipse at top,#243244,var(--bg) 60%);color:#f9fafb;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
@@ -18,7 +18,7 @@ hr{border:0;border-top:1px solid #374151;margin:14px 0}.section-title{font-weigh
 </head>
 <body>
 <main>
-<header><h1>ONLINE OTHELLO <span style="color:#60a5fa">+</span></h1><p class="sub">部屋コードで友達と遊ぶ15×15オセロ</p></header>
+<header><h1>ONLINE OTHELLO <span style="color:#60a5fa">+</span></h1><p class="sub">部屋コードで友達と遊ぶ15×15オセロ（2〜4人対戦）</p></header>
 
 <section class="panel" id="entryPanel">
   <p class="section-title">部屋に参加する</p>
@@ -28,7 +28,7 @@ hr{border:0;border-top:1px solid #374151;margin:14px 0}.section-title{font-weigh
   <hr>
   <div class="row">
     <label for="createCount">作成人数</label>
-    <select id="createCount"><option value="3">3人対戦</option><option value="4">4人対戦</option></select>
+    <select id="createCount"><option value="2">2人対戦</option><option value="3">3人対戦</option><option value="4">4人対戦</option></select>
     <button id="createBtn">部屋を作る</button>
   </div>
   <div class="row" style="margin-top:10px">
@@ -47,7 +47,7 @@ hr{border:0;border-top:1px solid #374151;margin:14px 0}.section-title{font-weigh
   <div id="hostSettings" class="hidden">
     <hr><div class="row">
       <label for="roomCount">対戦人数</label>
-      <select id="roomCount"><option value="3">3人</option><option value="4">4人</option></select>
+      <select id="roomCount"><option value="2">2人</option><option value="3">3人</option><option value="4">4人</option></select>
       <button id="setCountBtn" class="secondary">人数を設定</button>
     </div>
     <div class="actions"><button id="startBtn">対局開始</button><button id="newGameBtn" class="secondary hidden">新しいゲーム</button></div>

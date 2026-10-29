@@ -69,6 +69,8 @@ function initializeBoard(room) {
   const n = room.playerCount;
   const start = Math.floor((SIZE - n) / 2);
   const patterns = {
+    // 2人対戦は通常の黒・白の初期配置
+    2: [[1,2],[2,1]],
     3: [[1,2,3],[3,1,2],[2,3,1]],
     4: [[1,2,3,4],[3,4,1,2],[2,1,4,3],[4,3,2,1]]
   };
@@ -88,7 +90,14 @@ function counts(room) {
   return result;
 }
 function nextPlayer(room, fromId) {
-  // A player cannot take a second consecutive turn. Check only the other players.
+  // 2人対戦は相手が置けなければ自分が続けて打つ（通常のオセロのパス処理）。
+  if (room.playerCount === 2) {
+    const opponent = fromId === 1 ? 2 : 1;
+    if (legalMoves(room, opponent).length) return opponent;
+    if (legalMoves(room, fromId).length) return fromId;
+    return null;
+  }
+  // 3人・4人対戦では、自分以外の次の手番候補を探す。
   for (let step = 1; step < room.playerCount; step++) {
     const id = ((fromId - 1 + step) % room.playerCount) + 1;
     if (legalMoves(room, id).length) return id;
@@ -206,7 +215,7 @@ function requireHost(socket, room) {
 io.on("connection", socket => {
   socket.on("create-room", ({ clientId, name, playerCount } = {}) => {
     if (getRoomForSocket(socket)) leaveCurrent(socket);
-    if (!clientId || ![3,4].includes(Number(playerCount))) return errorTo(socket, "参加人数の設定が不正です。");
+    if (!clientId || ![2,3,4].includes(Number(playerCount))) return errorTo(socket, "参加人数の設定が不正です。");
     const code = roomCode();
     const host = {
       clientId: String(clientId).slice(0, 80),
@@ -257,7 +266,7 @@ io.on("connection", socket => {
     if (!room || !requireHost(socket, room)) return;
     if (room.status !== "lobby") return errorTo(socket, "対局開始後は人数を変更できません。");
     const n = Number(playerCount);
-    if (![3,4].includes(n)) return errorTo(socket, "3人または4人を選択してください。");
+    if (![2,3,4].includes(n)) return errorTo(socket, "2人、3人、または4人を選択してください。");
     if (room.players.length > n) return errorTo(socket, "参加者が多すぎます。先に参加者に退出してもらってください。");
     room.playerCount = n;
     room.players.forEach((p, i) => { p.colorId = i + 1; });
