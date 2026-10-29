@@ -1,166 +1,578 @@
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>オンライン2人・3人・4人オセロ</title>
+<title>オンラインオセロ</title>
 <style>
-:root{color-scheme:dark;--bg:#111827;--panel:#1f2937;--muted:#9ca3af;--blue:#3b82f6;--board:#27864a;--grid:#14552e}
-*{box-sizing:border-box}body{margin:0;padding:18px 10px 34px;background:radial-gradient(ellipse at top,#243244,var(--bg) 60%);color:#f9fafb;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
-main{width:min(820px,100%);margin:auto}header{text-align:center;margin-bottom:16px}h1{font-size:clamp(1.6rem,5vw,2.3rem);margin:0 0 5px;letter-spacing:.04em}.sub{color:var(--muted);margin:0}
+:root{color-scheme:dark;--bg:#111827;--panel:#1f2937;--muted:#9ca3af;--board:#27864a;--grid:#14552e}
+*{box-sizing:border-box}
+body{margin:0;padding:18px 10px 34px;background:radial-gradient(ellipse at top,#243244,var(--bg) 60%);color:#f9fafb;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+main{width:min(1050px,100%);margin:auto}
+header{text-align:center;margin-bottom:16px}
+h1{font-size:clamp(1.6rem,5vw,2.3rem);margin:0 0 5px;letter-spacing:.04em}
+.sub{color:var(--muted);margin:0}
 .panel{background:#1f2937;border:1px solid #374151;border-radius:16px;padding:15px;margin-bottom:13px;box-shadow:0 10px 28px #0002}
-.row{display:flex;gap:9px;align-items:center;justify-content:center;flex-wrap:wrap}label{font-weight:650;color:#d1d5db}input,select,button{font:inherit;border-radius:10px;border:1px solid #4b5563;padding:10px 12px;color:#f9fafb;background:#111827;max-width:100%}input{width:190px}button{cursor:pointer;background:#2563eb;border-color:#3b82f6;font-weight:700}button.secondary{background:#374151;border-color:#4b5563}button:disabled{opacity:.4;cursor:not-allowed}.hidden{display:none!important}
-.notice{margin:10px 0 0;text-align:center;color:#fca5a5;min-height:1.4em;font-size:.92rem}.roomcode{font-size:1.7rem;letter-spacing:.18em;font-weight:850;color:#93c5fd;text-align:center}.small{font-size:.85rem;color:var(--muted);text-align:center;line-height:1.6}.players{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin-top:12px}.player{background:#111827;border:1px solid #374151;border-radius:12px;padding:10px 6px;text-align:center;min-width:0}.player.current{outline:2px solid #60a5fa;background:#172a43}.player .name{font-size:.9rem;overflow-wrap:anywhere}.player .count{font-size:1.4rem;font-weight:850}.disc{display:inline-block;width:12px;height:12px;border-radius:50%;border:1px solid #ffffff55;vertical-align:-1px;margin-right:4px}
-.status{text-align:center;font-weight:750;margin:0 0 12px;min-height:1.4em}.board-wrap{display:flex;justify-content:center}#board{display:grid;grid-template-columns:repeat(15,minmax(0,1fr));gap:1px;padding:1px;width:min(100%,620px);aspect-ratio:1;background:var(--grid);border:2px solid var(--grid);border-radius:5px;overflow:hidden}.cell{min-width:0;min-height:0;border:0;border-radius:0;padding:0;background:var(--board);display:grid;place-items:center}.cell:disabled{opacity:1;cursor:default}.cell:not(:disabled){cursor:pointer}.stone{width:82%;height:82%;border-radius:50%;border:1px solid #0004;box-shadow:inset 0 1px 2px #ffffff55,0 1px 2px #0005;pointer-events:none}.hint{width:20%;height:20%;border-radius:50%;background:#d1fae5;opacity:.85;pointer-events:none}.actions{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;margin-top:13px}
-hr{border:0;border-top:1px solid #374151;margin:14px 0}.section-title{font-weight:750;margin:0 0 10px}.player-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 2px;border-bottom:1px solid #374151}.player-row:last-child{border-bottom:0}.tag{font-size:.78rem;color:#93c5fd}.dot{width:9px;height:9px;display:inline-block;border-radius:50%;background:#34d399;margin-right:5px}.dot.off{background:#f87171}
-@media(max-width:500px){body{padding:12px 6px 24px}.panel{padding:10px}.players{gap:4px}.player{padding:7px 2px}.player .name{font-size:.75rem}.player .count{font-size:1.15rem}.disc{width:10px;height:10px;margin-right:2px}input{width:150px}button,input,select{padding:9px 10px}}
+.row{display:flex;gap:9px;align-items:center;justify-content:center;flex-wrap:wrap}
+label{font-weight:650;color:#d1d5db}
+input,select,button{font:inherit;border-radius:10px;border:1px solid #4b5563;padding:10px 12px;color:#f9fafb;background:#111827;max-width:100%}
+input{width:190px}
+input[type=number]{width:100px}
+button{cursor:pointer;background:#2563eb;border-color:#3b82f6;font-weight:700}
+button.secondary{background:#374151;border-color:#4b5563}
+button:disabled{opacity:.4;cursor:not-allowed}
+.hidden{display:none!important}
+.notice{margin:10px 0 0;text-align:center;color:#fca5a5;min-height:1.4em;font-size:.92rem}
+.roomcode{font-size:1.7rem;letter-spacing:.08em;font-weight:850;color:#93c5fd;text-align:center;overflow-wrap:anywhere}
+.small{font-size:.85rem;color:var(--muted);text-align:center;line-height:1.6}
+.players{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin-top:12px}
+.player{background:#111827;border:1px solid #374151;border-radius:12px;padding:10px 6px;text-align:center;min-width:0}
+.player.current{outline:2px solid #60a5fa;background:#172a43}
+.player .name{font-size:.9rem;overflow-wrap:anywhere}
+.player .count{font-size:1.4rem;font-weight:850}
+.disc{display:inline-block;width:12px;height:12px;border-radius:50%;border:1px solid #ffffff55;vertical-align:-1px;margin-right:4px}
+.status{text-align:center;font-weight:750;margin:0 0 12px;min-height:1.4em}
+.board-wrap{display:flex;justify-content:center;overflow:auto}
+#board{display:grid;grid-template-columns:repeat(var(--board-size,8),minmax(0,1fr));grid-auto-rows:1fr;gap:1px;padding:1px;width:min(100%,700px);aspect-ratio:1;background:var(--grid);border:2px solid var(--grid);border-radius:5px;overflow:hidden;flex-shrink:0}
+.cell{min-width:0;min-height:0;aspect-ratio:1;border:0;border-radius:0;padding:0;background:var(--board);display:grid;place-items:center}
+.cell:disabled{opacity:1;cursor:default}
+.cell:not(:disabled){cursor:pointer}
+.stone{width:82%;height:82%;border-radius:50%;border:1px solid #0004;box-shadow:inset 0 1px 2px #ffffff55,0 1px 2px #0005;pointer-events:none}
+.hint{width:20%;height:20%;border-radius:50%;background:#d1fae5;opacity:.85;pointer-events:none}
+.actions{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;margin-top:13px}
+hr{border:0;border-top:1px solid #374151;margin:14px 0}
+.section-title{font-weight:750;margin:0 0 10px}
+.player-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 2px;border-bottom:1px solid #374151}
+.player-row:last-child{border-bottom:0}
+.tag{font-size:.78rem;color:#93c5fd}
+#chatLog{height:240px;overflow-y:auto;background:#111827;border:1px solid #374151;border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:8px}
+.chat-message{overflow-wrap:anywhere;white-space:pre-wrap;line-height:1.4}
+.chat-meta{font-size:.75rem;color:#9ca3af;margin-bottom:2px}
+.chat-text{font-size:.92rem}
+.chat-system{color:#9ca3af;font-style:italic}
+.chat-form{display:flex;gap:8px;margin-top:9px}
+.chat-form input{flex:1;width:0;min-width:0}
+.layout{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(280px,1fr);gap:13px;align-items:start}
+.layout .panel{margin-bottom:13px}
+@media(max-width:760px){
+  .layout{grid-template-columns:1fr}
+  .players{gap:4px}
+  .player{padding:7px 2px}
+  .player .name{font-size:.75rem}
+  .player .count{font-size:1.15rem}
+  .disc{width:10px;height:10px;margin-right:2px}
+  body{padding:12px 6px 24px}
+  .panel{padding:10px}
+  input{width:150px}
+  button,input,select{padding:9px 10px}
+  #board{width:min(100%, min(92vw, 700px))}
+}
 </style>
 </head>
 <body>
 <main>
-<header><h1>ONLINE OTHELLO <span style="color:#60a5fa">+</span></h1><p class="sub">部屋コードで友達と遊ぶ15×15オセロ（2〜4人対戦）</p></header>
+<header>
+  <h1>ONLINE OTHELLO <span style="color:#60a5fa">+</span></h1>
+  <p class="sub">好きな部屋コード・盤面サイズで遊ぶオンラインオセロ</p>
+</header>
 
 <section class="panel" id="entryPanel">
-  <p class="section-title">部屋に参加する</p>
+  <p class="section-title">部屋を作る・参加する</p>
   <div class="row">
-    <label for="name">名前</label><input id="name" maxlength="18" placeholder="プレイヤー名" autocomplete="nickname">
+    <label for="name">名前</label>
+    <input id="name" maxlength="18" placeholder="プレイヤー名" autocomplete="nickname">
   </div>
   <hr>
+  <p class="section-title">新しい部屋を作成（ホスト）</p>
   <div class="row">
-    <label for="createCount">作成人数</label>
-    <select id="createCount"><option value="2">2人対戦</option><option value="3">3人対戦</option><option value="4">4人対戦</option></select>
+    <label for="createCode">部屋コード</label>
+    <input id="createCode" maxlength="20" placeholder="例：GAME001">
+    <label for="createCount">人数</label>
+    <select id="createCount">
+      <option value="2">2人</option>
+      <option value="3">3人</option>
+      <option value="4">4人</option>
+    </select>
+    <label for="createSize">盤面</label>
+    <input id="createSize" type="number" min="6" max="20" step="2" value="8">
+    <span>×</span>
     <button id="createBtn">部屋を作る</button>
   </div>
-  <div class="row" style="margin-top:10px">
-    <label for="joinCode">部屋コード</label><input id="joinCode" maxlength="5" placeholder="例：AB123" autocapitalize="characters">
+  <p class="small">部屋コードは2〜20文字（日本語・英数字・_・-）。盤面サイズは6〜20の偶数です。</p>
+  <hr>
+  <p class="section-title">既存の部屋に参加</p>
+  <div class="row">
+    <label for="joinCode">部屋コード</label>
+    <input id="joinCode" maxlength="20" placeholder="ホストから聞いたコード">
     <button id="joinBtn" class="secondary">参加する</button>
   </div>
-  <p class="small">ホストが人数を設定し、参加者がそろったら対局を開始します。</p>
   <p class="notice" id="entryError" aria-live="polite"></p>
 </section>
 
 <section class="panel hidden" id="roomPanel">
   <div class="row"><span>部屋コード</span></div>
-  <div class="roomcode" id="roomCode">-----</div>
-  <div class="row"><button class="secondary" id="copyCodeBtn">コードをコピー</button><button class="secondary" id="leaveBtn">退出</button></div>
+  <div class="roomcode" id="roomCode">---</div>
+  <div class="row">
+    <button class="secondary" id="copyCodeBtn">コードをコピー</button>
+    <button class="secondary" id="leaveBtn">退出</button>
+  </div>
   <p class="small" id="roomMessage">参加者を待っています。</p>
+
   <div id="hostSettings" class="hidden">
-    <hr><div class="row">
+    <hr>
+    <p class="section-title">ホスト設定（対局開始前）</p>
+    <div class="row">
       <label for="roomCount">対戦人数</label>
-      <select id="roomCount"><option value="2">2人</option><option value="3">3人</option><option value="4">4人</option></select>
+      <select id="roomCount">
+        <option value="2">2人</option>
+        <option value="3">3人</option>
+        <option value="4">4人</option>
+      </select>
       <button id="setCountBtn" class="secondary">人数を設定</button>
     </div>
-    <div class="actions"><button id="startBtn">対局開始</button><button id="newGameBtn" class="secondary hidden">新しいゲーム</button></div>
-    <p class="small">人数変更・開始・1手戻る操作はホストが行えます。</p>
+    <div class="row" style="margin-top:9px">
+      <label for="roomSize">盤面サイズ</label>
+      <input id="roomSize" type="number" min="6" max="20" step="2" value="8">
+      <span>×</span>
+      <button id="setSizeBtn" class="secondary">盤面を設定</button>
+    </div>
+    <div class="actions"><button id="startBtn">対局開始</button></div>
+    <p class="small">全員が参加したら開始できます。盤面サイズは6〜20の偶数です。</p>
+  </div>
+
+  <div class="actions">
+    <button id="newGameBtn" class="secondary hidden">新しいゲーム</button>
   </div>
   <hr>
   <p class="section-title">参加者</p>
   <div id="lobbyPlayers"></div>
 </section>
 
-<section class="panel hidden" id="gamePanel">
-  <p class="status" id="status" aria-live="polite"></p>
-  <div class="players" id="scores"></div>
-  <hr>
-  <div class="board-wrap"><div id="board" role="grid" aria-label="オセロ盤"></div></div>
-  <div class="actions"><button id="undoBtn" class="secondary" disabled>↩ 1手戻る（ホスト）</button><button id="passBtn" class="secondary" disabled>パスする</button></div>
-  <p class="small">薄い緑の点が置ける場所です。1手戻ると全員の画面が同じ状態に戻ります。</p>
-</section>
+<div class="layout hidden" id="gameLayout">
+  <section class="panel hidden" id="gamePanel">
+    <p class="status" id="status" aria-live="polite"></p>
+    <div class="players" id="scores"></div>
+    <hr>
+    <div class="board-wrap">
+      <div id="board" role="grid" aria-label="オセロ盤"></div>
+    </div>
+    <div class="actions">
+      <button id="undoBtn" class="secondary" disabled>↩ 1手戻る（ホスト）</button>
+      <button id="passBtn" class="secondary" disabled>パスする</button>
+    </div>
+    <p class="small">薄い緑の点が置ける場所です。1手戻ると全員の盤面が同じ状態に戻ります。</p>
+  </section>
+
+  <section class="panel" id="chatPanel">
+    <p class="section-title">部屋チャット</p>
+    <div id="chatLog" aria-live="polite"></div>
+    <form class="chat-form" id="chatForm">
+      <input id="chatInput" maxlength="300" placeholder="メッセージを入力…" autocomplete="off">
+      <button type="submit">送信</button>
+    </form>
+    <p class="small">同じ部屋にいる参加者全員に送信されます（最大300文字）。</p>
+  </section>
+</div>
 </main>
+
 <script src="/socket.io/socket.io.js"></script>
 <script>
 (() => {
 "use strict";
-const SIZE=15;
-const COLORS=[
- {id:1,name:"黒",hex:"#171717"},{id:2,name:"白",hex:"#f5f5f5"},
- {id:3,name:"赤",hex:"#f04444"},{id:4,name:"青",hex:"#3287ff"}
+
+const COLORS = [
+  {id:1,name:"黒",hex:"#171717"},
+  {id:2,name:"白",hex:"#f5f5f5"},
+  {id:3,name:"赤",hex:"#f04444"},
+  {id:4,name:"青",hex:"#3287ff"}
 ];
-const $=id=>document.getElementById(id);
-const socket=io();
-let clientId=localStorage.getItem("othelloClientId");
-if(!clientId){clientId=(crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random());localStorage.setItem("othelloClientId",clientId);}
-let state=null, reconnecting=false;
-const entryPanel=$("entryPanel"),roomPanel=$("roomPanel"),gamePanel=$("gamePanel");
-function error(msg){$("entryError").textContent=msg||"";}
-function name(){return $("name").value.trim().slice(0,18)||"プレイヤー";}
-function currentPlayer(){return state?.players.find(p=>p.colorId===state.turn);}
-function me(){return state?.me;}
-function isHost(){return Boolean(state&&me()&&me().clientId===state.hostClientId);}
-function sendCreate(){error("");socket.emit("create-room",{clientId,name:name(),playerCount:Number($("createCount").value)});}
-function sendJoin(){error("");const code=$("joinCode").value.trim().toUpperCase();if(code.length!==5){error("5文字の部屋コードを入力してください。");return;}socket.emit("join-room",{clientId,name:name(),code});}
-$("createBtn").onclick=sendCreate;
-$("joinBtn").onclick=sendJoin;
-$("joinCode").addEventListener("input",e=>{e.target.value=e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,5);});
-$("setCountBtn").onclick=()=>socket.emit("set-player-count",{playerCount:Number($("roomCount").value)});
-$("startBtn").onclick=()=>socket.emit("start-game");
-$("newGameBtn").onclick=()=>{if(confirm("新しいゲームを開始しますか？"))socket.emit("new-game");};
-$("undoBtn").onclick=()=>socket.emit("undo");
-$("passBtn").onclick=()=>socket.emit("pass");
-$("leaveBtn").onclick=()=>{socket.disconnect();socket.connect();state=null;showPanels(false);};
-$("copyCodeBtn").onclick=async()=>{try{await navigator.clipboard.writeText(state.code);$("copyCodeBtn").textContent="コピーしました！";setTimeout(()=>$("copyCodeBtn").textContent="コードをコピー",1500);}catch{prompt("この部屋コードを共有してね",state.code);}};
-function showPanels(joined){entryPanel.classList.toggle("hidden",joined);roomPanel.classList.toggle("hidden",!joined);gamePanel.classList.toggle("hidden",!joined||!state||state.status==="lobby");}
-function renderLobby(){
-  $("roomCode").textContent=state.code;
-  $("roomMessage").textContent=state.message;
-  $("hostSettings").classList.toggle("hidden",!isHost()||state.status!=="lobby");
-  $("startBtn").disabled=state.players.length!==state.playerCount;
-  $("startBtn").textContent=`${state.playerCount}人で対局開始（${state.players.length}/${state.playerCount}）`;
-  $("newGameBtn").classList.toggle("hidden",!isHost()||state.status==="lobby");
-  $("roomCount").value=String(state.playerCount);
-  $("lobbyPlayers").innerHTML="";
-  for(let i=1;i<=state.playerCount;i++){
-    const p=state.players.find(p=>p.colorId===i);
-    const color=COLORS[i-1];
-    const div=document.createElement("div");div.className="player-row";
-    const left=document.createElement("span");
-    left.innerHTML=`<span class="disc" style="background:${color.hex}"></span>${color.name}：${p?escapeHtml(p.name):"参加待ち"}`;
-    const right=document.createElement("span");right.className="tag";
-    right.textContent=p?(p.isHost?"ホスト":p.connected?"参加中":"再接続待ち"):"空席";
-    div.append(left,right);$("lobbyPlayers").appendChild(div);
-  }
-  showPanels(true);
+
+const $ = id => document.getElementById(id);
+const socket = io();
+
+let clientId = localStorage.getItem("othelloClientId");
+
+if (!clientId) {
+  clientId = crypto.randomUUID
+    ? crypto.randomUUID()
+    : String(Date.now()) + Math.random();
+
+  localStorage.setItem("othelloClientId", clientId);
 }
-function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
-function renderGame(){
-  $("status").textContent=state.message;
-  $("scores").innerHTML="";
-  for(const p of state.players.slice().sort((a,b)=>a.colorId-b.colorId)){
-    const card=document.createElement("div");
-    card.className="player"+(state.turn===p.colorId&&state.status==="playing"?" current":"");
-    card.innerHTML=`<div class="name"><span class="disc" style="background:${COLORS[p.colorId-1].hex}"></span>${escapeHtml(p.name)}${p.isMe?"（自分）":""}</div><div class="count">${state.counts[p.colorId]||0}</div><div class="tag">${p.connected?"接続中":"切断中"}</div>`;
-    $("scores").appendChild(card);
-  }
-  const legal=new Set((state.legalMoves||[]).map(([x,y])=>`${x},${y}`));
-  const board=$("board");board.innerHTML="";
-  for(let y=0;y<SIZE;y++)for(let x=0;x<SIZE;x++){
-    const cell=document.createElement("button");cell.type="button";cell.className="cell";cell.setAttribute("role","gridcell");
-    const value=state.board[y][x],key=`${x},${y}`;
-    cell.setAttribute("aria-label",`${y+1}行${x+1}列`);
-    if(value){const stone=document.createElement("span");stone.className="stone";stone.style.background=COLORS[value-1].hex;cell.appendChild(stone);}
-    else if(legal.has(key)){const hint=document.createElement("span");hint.className="hint";cell.appendChild(hint);}
-    cell.disabled=state.status!=="playing"||!legal.has(key);
-    cell.onclick=()=>socket.emit("move",{x,y});
-    board.appendChild(cell);
-  }
-  $("undoBtn").disabled=!isHost()||state.historyLength===0||state.status==="lobby";
-  $("undoBtn").textContent=isHost()?"↩ 1手戻る（ホスト）":"↩ 1手戻る（ホストのみ）";
-  $("passBtn").disabled=state.status!=="playing"||!me()||state.turn!==me().colorId||(state.legalMoves||[]).length>0;
-  $("passBtn").textContent=(state.status==="playing"&&state.turn===me()?.colorId&&(state.legalMoves||[]).length===0)?"パスする":"パス不可";
-  showPanels(true);
+
+let state = null;
+let lastChatId = null;
+
+const entryPanel = $("entryPanel");
+const roomPanel = $("roomPanel");
+const gameLayout = $("gameLayout");
+
+function error(msg) {
+  $("entryError").textContent = msg || "";
 }
-socket.on("connect",()=>{
-  $("entryError").textContent="";
-  if(state?.code){reconnecting=true;socket.emit("join-room",{clientId,name:name(),code:state.code});}
+
+function playerName() {
+  return $("name").value.trim().slice(0, 18) || "プレイヤー";
+}
+
+function me() {
+  return state?.me;
+}
+
+function isHost() {
+  return Boolean(state && me() && me().clientId === state.hostClientId);
+}
+
+function showPanels(joined) {
+  entryPanel.classList.toggle("hidden", joined);
+  roomPanel.classList.toggle("hidden", !joined);
+  gameLayout.classList.toggle("hidden", !joined);
+
+  $("gamePanel").classList.toggle(
+    "hidden",
+    !joined || !state || state.status === "lobby"
+  );
+}
+
+function sendCreate() {
+  error("");
+
+  const code = $("createCode").value.trim().toUpperCase();
+  const size = Number($("createSize").value);
+
+  if (!/^[\p{L}\p{N}_-]{2,20}$/u.test(code)) {
+    error("部屋コードは2〜20文字の日本語・英数字・_・-で指定してください。");
+    return;
+  }
+
+  if (!Number.isInteger(size) || size < 6 || size > 20 || size % 2 !== 0) {
+    error("盤面サイズは6〜20の偶数で指定してください。");
+    return;
+  }
+
+  socket.emit("create-room", {
+    clientId,
+    name: playerName(),
+    code,
+    playerCount: Number($("createCount").value),
+    boardSize: size
+  });
+}
+
+function sendJoin() {
+  error("");
+
+  const code = $("joinCode").value.trim().toUpperCase();
+
+  if (!/^[\p{L}\p{N}_-]{2,20}$/u.test(code)) {
+    error("部屋コードを2〜20文字で入力してください。");
+    return;
+  }
+
+  socket.emit("join-room", {
+    clientId,
+    name: playerName(),
+    code
+  });
+}
+
+$("createBtn").onclick = sendCreate;
+$("joinBtn").onclick = sendJoin;
+
+for (const id of ["createCode", "joinCode"]) {
+  $(id).addEventListener("input", e => {
+    e.target.value = e.target.value
+      .toUpperCase()
+      .replace(/[^\p{L}\p{N}_-]/gu, "")
+      .slice(0, 20);
+  });
+}
+
+$("setCountBtn").onclick = () => {
+  socket.emit("set-player-count", {
+    playerCount: Number($("roomCount").value)
+  });
+};
+
+$("setSizeBtn").onclick = () => {
+  socket.emit("set-board-size", {
+    boardSize: Number($("roomSize").value)
+  });
+};
+
+$("startBtn").onclick = () => socket.emit("start-game");
+
+$("newGameBtn").onclick = () => {
+  if (confirm("新しいゲームを開始しますか？")) {
+    socket.emit("new-game");
+  }
+};
+
+$("undoBtn").onclick = () => socket.emit("undo");
+$("passBtn").onclick = () => socket.emit("pass");
+
+$("leaveBtn").onclick = () => {
+  socket.emit("leave-room");
+  state = null;
+  lastChatId = null;
+  showPanels(false);
+  error("");
+};
+
+$("copyCodeBtn").onclick = async () => {
+  try {
+    await navigator.clipboard.writeText(state.code);
+    $("copyCodeBtn").textContent = "コピーしました！";
+
+    setTimeout(() => {
+      $("copyCodeBtn").textContent = "コードをコピー";
+    }, 1500);
+  } catch {
+    prompt("この部屋コードを共有してね", state.code);
+  }
+};
+
+$("chatForm").addEventListener("submit", e => {
+  e.preventDefault();
+
+  const text = $("chatInput").value.trim();
+  if (!text) return;
+
+  socket.emit("chat-message", {text});
+  $("chatInput").value = "";
+  $("chatInput").focus();
 });
-socket.on("room-state",next=>{
-  state=next;reconnecting=false;error("");
+
+function renderLobby() {
+  $("roomCode").textContent = state.code;
+  $("roomMessage").textContent = state.message;
+
+  $("hostSettings").classList.toggle(
+    "hidden",
+    !isHost() || state.status !== "lobby"
+  );
+
+  $("startBtn").disabled = state.players.length !== state.playerCount;
+  $("startBtn").textContent =
+    `${state.playerCount}人で対局開始（${state.players.length}/${state.playerCount}）`;
+
+  $("newGameBtn").classList.toggle(
+    "hidden",
+    !isHost() || state.status === "lobby"
+  );
+
+  $("roomCount").value = String(state.playerCount);
+  $("roomSize").value = String(state.boardSize);
+
+  const list = $("lobbyPlayers");
+  list.innerHTML = "";
+
+  for (let i = 1; i <= state.playerCount; i++) {
+    const p = state.players.find(p => p.colorId === i);
+    const color = COLORS[i - 1];
+    const div = document.createElement("div");
+    div.className = "player-row";
+
+    const left = document.createElement("span");
+    const disc = document.createElement("span");
+    disc.className = "disc";
+    disc.style.background = color.hex;
+
+    left.append(
+      disc,
+      document.createTextNode(`${color.name}：${p ? p.name : "参加待ち"}`)
+    );
+
+    const right = document.createElement("span");
+    right.className = "tag";
+    right.textContent = p
+      ? (p.isHost ? "ホスト" : p.connected ? "参加中" : "再接続待ち")
+      : "空席";
+
+    div.append(left, right);
+    list.appendChild(div);
+  }
+
+  showPanels(true);
+}
+
+function renderGame() {
+  $("status").textContent = state.message;
+
+  const scores = $("scores");
+  scores.innerHTML = "";
+
+  for (const p of state.players.slice().sort((a,b) => a.colorId - b.colorId)) {
+    const card = document.createElement("div");
+
+    card.className = "player" +
+      (state.turn === p.colorId && state.status === "playing" ? " current" : "");
+
+    const nm = document.createElement("div");
+    nm.className = "name";
+
+    const disc = document.createElement("span");
+    disc.className = "disc";
+    disc.style.background = COLORS[p.colorId - 1].hex;
+
+    nm.append(
+      disc,
+      document.createTextNode(p.name + (p.isMe ? "（自分）" : ""))
+    );
+
+    const count = document.createElement("div");
+    count.className = "count";
+    count.textContent = state.counts[p.colorId] || 0;
+
+    const conn = document.createElement("div");
+    conn.className = "tag";
+    conn.textContent = p.connected ? "接続中" : "切断中";
+
+    card.append(nm, count, conn);
+    scores.appendChild(card);
+  }
+
+  const legal = new Set(
+    (state.legalMoves || []).map(([x,y]) => `${x},${y}`)
+  );
+
+  const board = $("board");
+  board.innerHTML = "";
+  board.style.setProperty("--board-size", state.boardSize);
+
+  for (let y = 0; y < state.boardSize; y++) {
+    for (let x = 0; x < state.boardSize; x++) {
+      const cell = document.createElement("button");
+      cell.type = "button";
+      cell.className = "cell";
+      cell.setAttribute("role", "gridcell");
+
+      const value = state.board[y][x];
+      const key = `${x},${y}`;
+
+      cell.setAttribute("aria-label", `${y+1}行${x+1}列`);
+
+      if (value) {
+        const stone = document.createElement("span");
+        stone.className = "stone";
+        stone.style.background = COLORS[value - 1].hex;
+        cell.appendChild(stone);
+      } else if (legal.has(key)) {
+        const hint = document.createElement("span");
+        hint.className = "hint";
+        cell.appendChild(hint);
+      }
+
+      cell.disabled = state.status !== "playing" || !legal.has(key);
+      cell.onclick = () => socket.emit("move", {x,y});
+
+      board.appendChild(cell);
+    }
+  }
+
+  $("undoBtn").disabled =
+    !isHost() || state.historyLength === 0 || state.status === "lobby";
+
+  $("undoBtn").textContent = isHost()
+    ? "↩ 1手戻る（ホスト）"
+    : "↩ 1手戻る（ホストのみ）";
+
+  $("passBtn").disabled =
+    state.status !== "playing" ||
+    !me() ||
+    state.turn !== me().colorId ||
+    (state.legalMoves || []).length > 0;
+
+  $("passBtn").textContent =
+    state.status === "playing" &&
+    state.turn === me()?.colorId &&
+    (state.legalMoves || []).length === 0
+      ? "パスする"
+      : "パス不可";
+
+  renderChat();
+  showPanels(true);
+}
+
+function renderChat() {
+  const log = $("chatLog");
+  const chat = state.chat || [];
+  const newest = chat.length ? chat[chat.length - 1].id : null;
+
+  log.innerHTML = "";
+
+  for (const msg of chat) {
+    const wrap = document.createElement("div");
+    wrap.className = "chat-message" + (msg.system ? " chat-system" : "");
+
+    const meta = document.createElement("div");
+    meta.className = "chat-meta";
+
+    const time = new Date(msg.time).toLocaleTimeString("ja-JP", {
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+
+    meta.textContent = msg.system
+      ? `${time} · システム`
+      : `${time} · ${COLORS[msg.colorId - 1]?.name || ""} · ${msg.name}`;
+
+    const text = document.createElement("div");
+    text.className = "chat-text";
+    text.textContent = msg.text;
+
+    wrap.append(meta, text);
+    log.appendChild(wrap);
+  }
+
+  if (newest !== lastChatId) {
+    log.scrollTop = log.scrollHeight;
+  }
+
+  lastChatId = newest;
+}
+
+socket.on("connect", () => {
+  if (state?.code) {
+    socket.emit("join-room", {
+      clientId,
+      name: playerName(),
+      code: state.code
+    });
+  }
+});
+
+socket.on("room-state", next => {
+  state = next;
+  error("");
+
   renderLobby();
-  if(state.status!=="lobby")renderGame();
+
+  if (state.status !== "lobby") {
+    renderGame();
+  } else {
+    renderChat();
+  }
 });
-socket.on("app-error",msg=>{error(msg);if(state)$("roomMessage").textContent=msg;});
-socket.on("session-replaced",()=>{alert("このプレイヤーは別のタブ・端末から再接続しました。");});
-socket.on("disconnect",()=>{if(state)$("roomMessage").textContent="サーバーから切断されました。再接続中…";});
+
+socket.on("app-error", msg => {
+  error(msg);
+
+  if (state) {
+    $("roomMessage").textContent = msg;
+  }
+});
+
+socket.on("session-replaced", () => {
+  alert("このプレイヤーは別のタブ・端末から再接続しました。");
+});
+
+socket.on("disconnect", () => {
+  if (state) {
+    $("roomMessage").textContent = "サーバーから切断されました。再接続中…";
+  }
+});
 })();
 </script>
 </body>
