@@ -1,0 +1,16 @@
+{
+  "name": "online-multiplayer-othello",
+  "version": "1.0.0",
+  "description": "15x15 realtime multiplayer Othello for 3 or 4 players",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "socket.io": "^4.8.1"
+  }
+}
